@@ -37,27 +37,35 @@ namespace DMIT1514_Lab06_Platformer
 
         internal bool ProcessCollision(Actor actor)
         {
-            bool didCollide = false;
+            bool grounded = false;
             if (rectangle.Intersects(actor.rectangle))
             {
-                didCollide = true;
-                switch (type)
+                if (actor.rectangle.Bottom > rectangle.Top && actor.rectangle.Bottom < rectangle.Bottom)
                 {
-                    case ColliderType.left:
-                        break;
-                    case ColliderType.Right:
-                        break;
-                    case ColliderType.Top:
-                        actor.Land(rectangle);
-                        actor.StandOn(rectangle);
-                        break;
-                    case ColliderType.Bottom:
-                        break;
-                    default:
-                        break;
+                    grounded = true;
+                    actor.Land(rectangle);
+                    actor.StandOn(rectangle);
+                }
+                else if (actor.rectangle.Top < rectangle.Bottom && actor.rectangle.Top > rectangle.Top)
+                {
+                    actor.rectangle.Y = (int)(rectangle.Bottom) - 1;
+                    actor.velocity.Y = 0;
+                    actor.transform.SyncRect(rectangle);
+                }
+                else if (actor.rectangle.Right > rectangle.Left && actor.rectangle.Right < rectangle.Right)
+                {
+                    actor.rectangle.X = (int)(rectangle.Left - rectangle.Width) + 1;
+                    actor.velocity.X = 0;
+                    actor.transform.SyncRect(rectangle);
+                }
+                else if (actor.rectangle.Left < rectangle.Right && actor.rectangle.Left > rectangle.Left)
+                {
+                    actor.rectangle.X = (int)(rectangle.Right) + 1;
+                    actor.velocity.X = 0;
+                    actor.transform.SyncRect(rectangle);
                 }
             }
-            return didCollide;
+            return grounded;
         }
     }
 }

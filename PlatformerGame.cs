@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 
 namespace PlatformerGame
@@ -16,14 +17,16 @@ namespace PlatformerGame
         Texture2D playerTexture;
         Texture2D tile;
         Actor player;
-        Collider collider;
-        bool inBlock;
+        bool isGrounded;
 
         List<Collider> platforms = new List<Collider>();
+        int groundTileCount = 10;
+
 
         Transform platTransform;
         Transform playerTransform;
 
+        Point playerSpawn;
 
         public PlatformerGame()
         {
@@ -40,12 +43,19 @@ namespace PlatformerGame
             _graphics.PreferredBackBufferWidth = 360 * GameScale;
             _graphics.PreferredBackBufferHeight = 240 * GameScale;
             _graphics.ApplyChanges();
-            playerTransform = new Transform(new Vector2(20 * GameScale, 0 * GameScale), 0, GameScale);
+
+            playerSpawn = new(20 * GameScale, 20 * GameScale);
+            playerTransform = new Transform(playerSpawn.ToVector2(), 0, GameScale);
             platTransform = new Transform(new Vector2(20 * GameScale, 200 * GameScale), 0, GameScale);
 
             player = new Actor(this, playerTransform, playerTexture);
-            collider = new Collider(this, platTransform, tile);
-            platforms.Add(collider);
+            for (int colldierIndex = 0; colldierIndex < groundTileCount; colldierIndex++)
+            {
+                Collider newPlatform = new Collider(this, platTransform, tile);
+                newPlatform.rectangle.Location = new Point(colldierIndex * newPlatform.rectangle.Width, _graphics.PreferredBackBufferHeight - (20 * GameScale));
+                newPlatform.transform.SyncRect(newPlatform.rectangle);
+                platforms.Add(newPlatform);
+            }
         }
 
         protected override void LoadContent()
@@ -70,12 +80,49 @@ namespace PlatformerGame
 
             foreach (Collider collider in platforms)
             {
-                inBlock = collider.ProcessCollision(player);
+                isGrounded = collider.ProcessCollision(player);
+                if (isGrounded)
+                {
+                    break;
+                }
             }
 
-            if(Keyboard.GetState().IsKeyDown(Keys.Space) && !inBlock)
+            if (Keyboard.GetState().IsKeyDown(Keys.A))
             {
-                player.AddVelocity(0, -4);
+                if (player.InBoundsLeft())
+                {
+                    player.SetVelocity(-5, player.velocity.Y);
+                }
+                else
+                {
+                    player.SetVelocity(0, player.velocity.Y);
+                }
+            }
+            else if (Keyboard.GetState().IsKeyDown(Keys.D))
+            {
+                if (player.InBoundsRight(_graphics))
+                {
+                    player.SetVelocity(5, player.velocity.Y);
+                }
+            }
+            else
+            {
+                player.SetVelocity(0, player.velocity.Y);
+            }
+
+            player.InBoundsBottom(_graphics);
+
+            if(player.rectangle.Top > _graphics.PreferredBackBufferHeight)
+            {
+                player.rectangle.Location = playerSpawn;
+            }
+
+            Debug.WriteLine(player.rectangle.Location);
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space) && isGrounded)
+            {
+                player.SetVelocity(player.velocity.X, -20);
+                isGrounded = false;
             }
             // TODO: Add your update logic here
 

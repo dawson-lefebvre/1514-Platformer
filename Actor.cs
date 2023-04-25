@@ -44,7 +44,7 @@ namespace DMIT1514_Lab06_Platformer
             velocity.Y -= 1;
         }
 
-        public void SetVelocity(int x, int y)
+        public void SetVelocity(float x, float y)
         {
             velocity = new Vector2(x, y);
         }
@@ -53,6 +53,56 @@ namespace DMIT1514_Lab06_Platformer
         {
             velocity.X += x;
             velocity.Y += y;
+        }
+
+        public bool InBoundsLeft()
+        {
+            if(rectangle.Left > 0 + rectangle.Width / 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool InBoundsRight(GraphicsDeviceManager graphics)
+        {
+            if (rectangle.Right <= graphics.PreferredBackBufferWidth - rectangle.Width / 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool InBoundsTop()
+        {
+            if (rectangle.Top >= 0)
+            {
+                return true;
+            }
+            else
+            {
+                rectangle.Y = 0;
+                return false;
+            }
+        }
+
+        public bool InBoundsBottom(GraphicsDeviceManager graphics)
+        {
+            if (rectangle.Bottom <= graphics.PreferredBackBufferHeight - rectangle.Height / 2)
+            {
+                return true;
+            }
+            else
+            {
+                velocity.Y = 0;
+                return false;
+            }
         }
     }
 }
