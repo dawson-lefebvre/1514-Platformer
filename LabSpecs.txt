@@ -1,0 +1,6 @@
+Player Can move and jump
+Player is not animated
+Game has platforms
+there are 6 platforms
+Game has a spawn and jumps up towards the top
+Game has collecatbles that dissapear once collected
