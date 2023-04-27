@@ -19,9 +19,13 @@ namespace PlatformerGame
         Actor player;
         bool isGrounded;
 
-        List<Collider> platforms = new List<Collider>();
+        List<Collider> groundPlatforms = new List<Collider>();
         int groundTileCount = 10;
 
+        int ascendingTileCount = 6;
+
+        Texture2D coinText;
+        List<Collectable> coins = new List<Collectable>();
 
         Transform platTransform;
         Transform playerTransform;
@@ -54,7 +58,31 @@ namespace PlatformerGame
                 Collider newPlatform = new Collider(this, platTransform, tile);
                 newPlatform.rectangle.Location = new Point(colldierIndex * newPlatform.rectangle.Width, _graphics.PreferredBackBufferHeight - (20 * GameScale));
                 newPlatform.transform.SyncRect(newPlatform.rectangle);
-                platforms.Add(newPlatform);
+                groundPlatforms.Add(newPlatform);
+            }
+
+            for (int platformIndex = 1; platformIndex <= ascendingTileCount; platformIndex++)
+            {
+                Collider newPlatform1 = new Collider(this, platTransform, tile);
+                newPlatform1.rectangle.Location = new Point(platformIndex * newPlatform1.rectangle.Width + ((40 * (platformIndex)) * GameScale), _graphics.PreferredBackBufferHeight - (20 * GameScale) * platformIndex);
+                newPlatform1.transform.SyncRect(newPlatform1.rectangle);
+                groundPlatforms.Add(newPlatform1);
+
+                Collectable coin1 = new Collectable(this, platTransform, coinText);
+                coin1.rectangle.Location = new Point(platformIndex * newPlatform1.rectangle.Width + ((40 * (platformIndex)) * GameScale), newPlatform1.rectangle.Top - (2 * GameScale) - coin1.rectangle.Height);
+                coin1.transform.SyncRect(coin1.rectangle);
+                coins.Add(coin1);
+
+                Collider newPlatform2 = new Collider(this, platTransform, tile);
+                newPlatform2.rectangle.Location = new Point(platformIndex * newPlatform2.rectangle.Width + ((40 * (platformIndex)) * GameScale) + newPlatform2.rectangle.Width, _graphics.PreferredBackBufferHeight - (20 * GameScale) * platformIndex);
+                newPlatform2.transform.SyncRect(newPlatform2.rectangle);
+                newPlatform2.transform.SyncRect(newPlatform2.rectangle);
+                groundPlatforms.Add(newPlatform2);
+
+                Collectable coin2 = new Collectable(this, platTransform, coinText);
+                coin2.rectangle.Location = new Point(platformIndex * newPlatform2.rectangle.Width + ((40 * (platformIndex)) * GameScale), newPlatform2.rectangle.Top - (2 * GameScale) - coin2.rectangle.Height);
+                coin2.transform.SyncRect(coin2.rectangle);
+                coins.Add(coin2);
             }
         }
 
@@ -63,6 +91,7 @@ namespace PlatformerGame
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             playerTexture = Content.Load<Texture2D>("little_guy");
             tile = Content.Load<Texture2D>("platform");
+            coinText = Content.Load<Texture2D>("heart");
             // TODO: use this.Content to load your game content here
         }
 
@@ -78,7 +107,7 @@ namespace PlatformerGame
                 player.rectangle.Location = Mouse.GetState().Position;
             }
 
-            foreach (Collider collider in platforms)
+            foreach (Collider collider in groundPlatforms)
             {
                 isGrounded = collider.ProcessCollision(player);
                 if (isGrounded)
@@ -112,7 +141,7 @@ namespace PlatformerGame
 
             player.InBoundsBottom(_graphics);
 
-            if(player.rectangle.Top > _graphics.PreferredBackBufferHeight)
+            if (player.rectangle.Top > _graphics.PreferredBackBufferHeight)
             {
                 player.rectangle.Location = playerSpawn;
             }
@@ -125,6 +154,14 @@ namespace PlatformerGame
                 isGrounded = false;
             }
             // TODO: Add your update logic here
+
+            foreach (Collectable coin in coins)
+            {
+                if(coin.currentState == Collectable.State.Enabled)
+                {
+                    coin.ProcessCollision(player);
+                }
+            }
 
             base.Update(gameTime);
         }

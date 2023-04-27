@@ -4,8 +4,10 @@ using PlatformerGame;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static DMIT1514_Lab06_Platformer.Collider;
 
 namespace DMIT1514_Lab06_Platformer
 {
@@ -37,35 +39,29 @@ namespace DMIT1514_Lab06_Platformer
 
         internal bool ProcessCollision(Actor actor)
         {
-            bool grounded = false;
+            bool didCollide = false;
             if (rectangle.Intersects(actor.rectangle))
             {
-                if (actor.rectangle.Bottom > rectangle.Top && actor.rectangle.Bottom < rectangle.Bottom)
+                didCollide = true;
+                switch (type)
                 {
-                    grounded = true;
-                    actor.Land(rectangle);
-                    actor.StandOn(rectangle);
-                }
-                else if (actor.rectangle.Top < rectangle.Bottom && actor.rectangle.Top > rectangle.Top)
-                {
-                    actor.rectangle.Y = (int)(rectangle.Bottom) - 1;
-                    actor.velocity.Y = 0;
-                    actor.transform.SyncRect(rectangle);
-                }
-                else if (actor.rectangle.Right > rectangle.Left && actor.rectangle.Right < rectangle.Right)
-                {
-                    actor.rectangle.X = (int)(rectangle.Left - rectangle.Width) + 1;
-                    actor.velocity.X = 0;
-                    actor.transform.SyncRect(rectangle);
-                }
-                else if (actor.rectangle.Left < rectangle.Right && actor.rectangle.Left > rectangle.Left)
-                {
-                    actor.rectangle.X = (int)(rectangle.Right) + 1;
-                    actor.velocity.X = 0;
-                    actor.transform.SyncRect(rectangle);
+                    case ColliderType.left:
+                        //if the player is moving rightwards
+
+                        break;
+                    case ColliderType.Right:
+                        //if the player is moving leftwards
+
+                        break;
+                    case ColliderType.Top:
+                        actor.Land(rectangle);
+                        actor.StandOn(rectangle);
+                        break;
+                    case ColliderType.Bottom:
+                        break;
                 }
             }
-            return grounded;
+            return didCollide;
         }
     }
 }
